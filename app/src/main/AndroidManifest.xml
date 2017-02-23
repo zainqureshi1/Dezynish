@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.e2esp.dezynish">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:name=".applications.Dezynish"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/title_activity_login"
+        android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".activities.SplashActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".activities.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Ok Google voice search -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Accepts URIs that begin with "app://dezynish.com" -->
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="dezynish.com"
+                    android:scheme="app" />
+            </intent-filter>
+            <!-- Accepts URIs that begin with "http://dezynish.com" -->
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="dezynish.com"
+                    android:pathPrefix="/app"
+                    android:scheme="http" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+
+        <activity
+            android:name=".activities.OrderDetail"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <!-- Accepts URIs that begin with "app://dezynish.com/order" -->
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="dezynish.com"
+                    android:path="/order"
+                    android:scheme="app" />
+            </intent-filter>
+            <!-- Accepts URIs that begin with "http://app.dezynish.com/order" -->
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="dezynish.com"
+                    android:path="/order"
+                    android:pathPrefix="/app"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activities.OrderLinesShip"
+            android:label="@string/app_name"
+            android:parentActivityName=".activities.OrderDetail"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.e2esp.dezynish.activities.OrderDetail" />
+        </activity>
+
+        <activity
+            android:name=".activities.OrderNew"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".activities.OrderAddProduct"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/PopupTheme">
+        </activity>
+
+        <!-- Fetch caller's number and pass it to HeadInfoService -->
+        <receiver android:name=".receivers.CallerDetector">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- If caller is a customer, then show their details -->
+        <service
+            android:name=".services.HeadInfoService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <!-- Dezynish  Aunthenticator -->
+        <service android:name=".authenticator.DezynishAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+        <!-- Dezynish Provider -->
+        <provider
+            android:name=".data.DezynishProvider"
+            android:authorities="@string/content_authority"
+            android:exported="false"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/provider_name"
+            android:syncable="true" />
+
+        <!-- Dezynish Service -->
+        <service
+            android:name=".sync.DezynishSyncService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="ab0328d1f8aeb67ac9441a3c9296bf906233827e" />
+
+    </application>
+
+</manifest>

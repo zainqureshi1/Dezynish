@@ -1,6 +1,6 @@
 package com.e2esp.dezynish.models.orders;
 
-import com.bignerdranch.expandablerecyclerview.model.Parent;
+import com.e2esp.dezynish.expandablerecyclerview.model.Parent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class DrawerItem implements Parent<DrawerSubItem> {
 
     @Override
     public boolean isInitiallyExpanded() {
-        return false;
+        return "Products".equals(section);
     }
 
 }

@@ -2,9 +2,11 @@ package com.e2esp.dezynish.woocommerce;
 
 import android.util.Log;
 
+import com.e2esp.dezynish.models.orders.Count;
 import com.e2esp.dezynish.models.orders.Order;
 import com.e2esp.dezynish.models.products.Product;
 import com.e2esp.dezynish.enums.RequestMethod;
+import com.e2esp.dezynish.models.shop.Shop;
 import com.e2esp.dezynish.woocommerce.helpers.Endpoints;
 import com.e2esp.dezynish.woocommerce.helpers.OAuthSigner;
 import com.e2esp.dezynish.interfaces.ListCallbacks;
@@ -33,6 +35,7 @@ import retrofit.mime.TypedByteArray;
 /**
  * Created by Zain on 2/20/17.
  */
+
 public class WooCommerce {
     private final String TAG = WooCommerce.class.getName();
 
@@ -63,7 +66,15 @@ public class WooCommerce {
         Log.i(TAG, "onCreate");
     }
 
+    private interface ShopInterface {
+        @GET(Endpoints.SHOP_ENDPOINT)
+        void getShop(@QueryMap LinkedHashMap<String, String> options, Callback<Response> response);
+    }
+
     private interface ProductsInterface {
+        @GET(Endpoints.PRODUCTS_ENDPOINT + "/count")
+        void getCount(@QueryMap LinkedHashMap<String, String> options, Callback<Response> response);
+
         @GET(Endpoints.PRODUCTS_ENDPOINT + "/{id}")
          void getProduct(@Path("id")String id,@QueryMap LinkedHashMap<String, String> options, Callback<Response> response);
 
@@ -75,6 +86,9 @@ public class WooCommerce {
     }
 
     private interface OrdersInterface {
+        @GET(Endpoints.ORDERS_ENDPOINT + "/count")
+        void getCount(@QueryMap LinkedHashMap<String, String> options, Callback<Response> response);
+
         @GET(Endpoints.ORDERS_ENDPOINT + "/{id}")
         void getOrder(@Path("id")String id,@QueryMap LinkedHashMap<String, String> options, Callback<Response> response);
 
@@ -82,15 +96,50 @@ public class WooCommerce {
         void getOrders(@QueryMap LinkedHashMap<String, String> options, Callback<Response> response);
     }
 
-    public List<Product> getAllProducts(final ListCallbacks fetched) {
-        return getProducts(null, fetched);
+    public void getShop(final ObjectCallbacks fetched) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(wcBuilder.isHttps() ? "https://" : "http://");
+        builder.append(wcBuilder.getBaseUrl() + "/");
+        builder.append("wc-api/v3");
+        Log.i(TAG,builder.toString());
+        RestAdapter adapter = new RestAdapter.Builder()
+                .setEndpoint(builder.toString())
+                .build();
+
+        ShopInterface api = adapter.create(ShopInterface.class);
+        LinkedHashMap<String, String> options = new LinkedHashMap<>();
+
+        api.getShop(OAuthSigner.getSignature(options,RequestMethod.GET, Endpoints.SHOP_ENDPOINT), new Callback<Response>() {
+            @Override
+            public void success(Response response1, Response response) {
+                String bodyString = new String(((TypedByteArray) response.getBody()).getBytes());
+                try {
+                    Gson gson = new Gson();
+                    Shop shop = gson.fromJson(bodyString, Shop.class);
+                    System.out.println(shop);
+                    fetched.Callback(shop, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println(error.getUrl());
+                fetched.Callback(null, error);
+            }
+        });
     }
 
-    public List<Product> getProducts(int page, final ListCallbacks fetched) {
-        return getProducts(page, 0, fetched);
+    public void getAllProducts(final ListCallbacks fetched) {
+        getProducts(null, fetched);
     }
 
-    public List<Product> getProducts(int page, int pageSize, final ListCallbacks fetched) {
+    public void getProducts(int page, final ListCallbacks fetched) {
+        getProducts(page, 0, fetched);
+    }
+
+    public void getProducts(int page, int pageSize, final ListCallbacks fetched) {
         HashMap<String, String> params = new HashMap<>();
         if (page > 0) {
             params.put("page", String.valueOf(page));
@@ -98,10 +147,10 @@ public class WooCommerce {
         if (pageSize > 0) {
             params.put("filter[limit]", String.valueOf(pageSize));
         }
-        return getProducts(params, fetched);
+        getProducts(params, fetched);
     }
 
-    public List<Product> getProducts(HashMap<String, String> params, final ListCallbacks fetched) {
+    public void getProducts(HashMap<String, String> params, final ListCallbacks fetched) {
         StringBuilder builder = new StringBuilder();
         builder.append(wcBuilder.isHttps() ? "https://" : "http://");
         builder.append(wcBuilder.getBaseUrl() + "/");
@@ -135,11 +184,9 @@ public class WooCommerce {
                 fetched.Callback(null, error);
             }
         });
-
-        return null;
     }
 
-    public Product getProduct(String id, final ObjectCallbacks fetched) {
+    public void getProduct(String id, final ObjectCallbacks fetched) {
         StringBuilder builder = new StringBuilder();
         builder.append(wcBuilder.isHttps() ? "https://" : "http://");
         builder.append(wcBuilder.getBaseUrl() + "/");
@@ -158,8 +205,10 @@ public class WooCommerce {
             public void success(Response response1, Response response) {
                 String bodyString = new String(((TypedByteArray) response.getBody()).getBytes());
                 try {
+                    JSONObject jsonObject = new JSONObject(bodyString);
+                    JSONObject jsonProduct = jsonObject.getJSONObject("product");
                     Gson gson = new Gson();
-                    Product product = gson.fromJson(bodyString, Product.class);
+                    Product product = gson.fromJson(jsonProduct.toString(), Product.class);
                     System.out.println(product);
                     fetched.Callback(product, null);
                 } catch (Exception e) {
@@ -173,11 +222,43 @@ public class WooCommerce {
                 fetched.Callback(null, error);
             }
         });
-
-        return null;
     }
 
-    public List<Product> getCategories(final ListCallbacks fetched) {
+    public void getProductsCount(final ObjectCallbacks fetched) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(wcBuilder.isHttps() ? "https://" : "http://");
+        builder.append(wcBuilder.getBaseUrl() + "/");
+        builder.append("wc-api/v3");
+        Log.i(TAG,builder.toString());
+        RestAdapter adapter = new RestAdapter.Builder()
+                .setEndpoint(builder.toString())
+                .build();
+
+        ProductsInterface api = adapter.create(ProductsInterface.class);
+        LinkedHashMap<String, String> options = new LinkedHashMap<>();
+
+        api.getCount(OAuthSigner.getSignature(options,RequestMethod.GET, Endpoints.PRODUCTS_ENDPOINT), new Callback<Response>() {
+            @Override
+            public void success(Response response1, Response response) {
+                String bodyString = new String(((TypedByteArray) response.getBody()).getBytes());
+                try {
+                    Gson gson = new Gson();
+                    Count count = gson.fromJson(bodyString, Count.class);
+                    System.out.println(count);
+                    fetched.Callback(count, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println(error.getUrl());
+                fetched.Callback(null, error);
+            }
+        });
+    }
+
+    public void getCategories(final ListCallbacks fetched) {
         StringBuilder builder = new StringBuilder();
         builder.append(wcBuilder.isHttps() ? "https://" : "http://");
         builder.append(wcBuilder.getBaseUrl() + "/");
@@ -211,30 +292,9 @@ public class WooCommerce {
                 fetched.Callback(null, error);
             }
         });
-
-        return null;
     }
 
-    public List<Order> getAllOrders(final ListCallbacks fetched) {
-        return getOrders(null, fetched);
-    }
-
-    public List<Order> getOrders(int page, final ListCallbacks fetched) {
-        return getOrders(page, 0, fetched);
-    }
-
-    public List<Order> getOrders(int page, int pageSize, final ListCallbacks fetched) {
-        HashMap<String, String> params = new HashMap<>();
-        if (page > 0) {
-            params.put("page", String.valueOf(page));
-        }
-        if (pageSize > 0) {
-            params.put("filter[limit]", String.valueOf(pageSize));
-        }
-        return getOrders(params, fetched);
-    }
-
-    public List<Order> getOrders(HashMap<String, String> params, final ListCallbacks fetched) {
+    public void getOrders(HashMap<String, String> params, final ListCallbacks fetched) {
         StringBuilder builder = new StringBuilder();
         builder.append(wcBuilder.isHttps() ? "https://" : "http://");
         builder.append(wcBuilder.getBaseUrl() + "/");
@@ -250,7 +310,7 @@ public class WooCommerce {
             @Override
             public void success(Response response1, Response response) {
                 String bodyString = new String(((TypedByteArray) response.getBody()).getBytes());
-                Log.i(TAG, "getOrders :: response:"+bodyString);
+                Log.i(TAG, "getProducts :: response:"+bodyString);
                 try {
                     JSONObject jsonObject = new JSONObject(bodyString);
                     JSONArray jsonArray = jsonObject.getJSONArray("orders");
@@ -268,8 +328,40 @@ public class WooCommerce {
                 fetched.Callback(null, error);
             }
         });
+    }
 
-        return null;
+    public void getOrdersCount(final ObjectCallbacks fetched) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(wcBuilder.isHttps() ? "https://" : "http://");
+        builder.append(wcBuilder.getBaseUrl() + "/");
+        builder.append("wc-api/v3");
+        Log.i(TAG,builder.toString());
+        RestAdapter adapter = new RestAdapter.Builder()
+                .setEndpoint(builder.toString())
+                .build();
+
+        OrdersInterface api = adapter.create(OrdersInterface.class);
+        LinkedHashMap<String, String> options = new LinkedHashMap<>();
+
+        api.getCount(OAuthSigner.getSignature(options,RequestMethod.GET, Endpoints.ORDERS_ENDPOINT), new Callback<Response>() {
+            @Override
+            public void success(Response response1, Response response) {
+                String bodyString = new String(((TypedByteArray) response.getBody()).getBytes());
+                try {
+                    Gson gson = new Gson();
+                    Count count = gson.fromJson(bodyString, Count.class);
+                    System.out.println(count);
+                    fetched.Callback(count, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println(error.getUrl());
+                fetched.Callback(null, error);
+            }
+        });
     }
 
 }

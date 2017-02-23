@@ -5,6 +5,7 @@ import com.e2esp.dezynish.enums.SigningMethod;
 /**
  * Created by Zain on 2/20/17.
  */
+
 public class WCBuilder {
 
     private boolean isHttps;
