@@ -2,13 +2,15 @@ package com.e2esp.dezynish.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -19,17 +21,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.e2esp.dezynish.R;
+import com.e2esp.dezynish.applications.Dezynish;
 import com.e2esp.dezynish.data.DezynishContract;
+import com.e2esp.dezynish.woocommerce.WooCommerce;
 import com.e2esp.dezynish.models.customers.BillingAddress;
 import com.e2esp.dezynish.models.customers.ShippingAddress;
 import com.e2esp.dezynish.models.orders.Item;
@@ -43,6 +38,14 @@ import com.e2esp.dezynish.models.orders.ShippingLine;
 import com.e2esp.dezynish.models.products.Product;
 import com.e2esp.dezynish.models.products.Variation;
 import com.e2esp.dezynish.utilities.Utility;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Zain on 2/18/2017.
@@ -114,7 +117,82 @@ public class OrderNew extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
 
-                    if (mOrderSelected.getItems().size() > 0) {
+                    if(TextUtils.isEmpty(mCustomerFirst.getText().toString())){
+
+                        mCustomerFirst.setError("First Name cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mCustomerLast.getText().toString())){
+
+                        mCustomerLast.setError("Last Name cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mEmail.getText().toString())){
+
+                        mEmail.setError("Email cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mPhone.getText().toString())){
+
+                        mPhone.setError("Phone Number cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mBillingCompany.getText().toString())){
+
+                        mBillingCompany.setError("Company cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mBillingAddressOne.getText().toString())){
+
+                        mBillingAddressOne.setError("Address One cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mBillingAddressTwo.getText().toString())){
+
+                        mBillingAddressTwo.setError("Address Two cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mBillingAddressCP.getText().toString())){
+
+                        mBillingAddressCP.setError("Postal Code cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mBillingAddressCity.getText().toString())){
+
+                        mBillingAddressCity.setError("City cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mBillingAddressState.getText().toString())){
+
+                        mBillingAddressState.setError("Stae cannot be Empty.");
+                        return;
+
+                    }
+
+                    if(TextUtils.isEmpty(mBillingAddressCountry.getText().toString())){
+
+                        mBillingAddressCountry.setError("Country cannot be Empty.");
+                        return;
+
+                    } else if (mOrderSelected.getItems().size() > 0) {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(OrderNew.this)
                                 .setTitle(getString(R.string.new_order_title))
                                 .setMessage(getString(R.string.order_create_confirmation))
@@ -138,7 +216,7 @@ public class OrderNew extends AppCompatActivity {
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -161,6 +239,7 @@ public class OrderNew extends AppCompatActivity {
             shippingLine.setMethodId(getString(R.string.default_shipping_method_id));
             shippingLine.setMethodTitle(getString(R.string.default_shipping_method_title));
             shippingLine.setTotal(getString(R.string.default_shipping_method_title));
+            mOrderSelected.getShippingLines().clear();
             mOrderSelected.getShippingLines().add(shippingLine);
 
             BillingAddress billingAddress = new BillingAddress();
@@ -190,7 +269,7 @@ public class OrderNew extends AppCompatActivity {
             mOrderSelected.setShippingAddress(shippingAddress);
 
             String json = mGson.toJson(mOrderSelected);
-            Log.i(LOG_TAG, json);
+            Log.i(LOG_TAG, "Json " +json);
 
             Utility.setPreferredShoppingCard(getApplicationContext(), json);
         }
@@ -209,14 +288,15 @@ public class OrderNew extends AppCompatActivity {
             billingAddress.setCompany(getString(R.string.default_company));
             billingAddress.setFirstName(getString(R.string.default_first_name));
             billingAddress.setLastName(getString(R.string.default_last_name));
+            billingAddress.setEmail(getString(R.string.default_email));
+            billingAddress.setPhone(getString(R.string.default_phone));
+
             billingAddress.setAddressOne(getString(R.string.default_line_one));
             billingAddress.setAddressTwo(getString(R.string.default_line_two));
             billingAddress.setCity(getString(R.string.default_city));
             billingAddress.setState(getString(R.string.default_state));
             billingAddress.setPostcode(getString(R.string.default_postal_code));
             billingAddress.setCountry(getString(R.string.default_country));
-            billingAddress.setEmail(getString(R.string.default_email));
-            billingAddress.setPhone(getString(R.string.default_phone));
 
             mOrderSelected.setBillingAddress(billingAddress);
 
@@ -246,12 +326,12 @@ public class OrderNew extends AppCompatActivity {
 
         mBillingCompany.setText(mOrderSelected.getBillingAddress().getCompany());
 
-        mBillingAddressOne.setText(mOrderSelected.getBillingAddress().getAddressOne());
+        /*mBillingAddressOne.setText(mOrderSelected.getBillingAddress().getAddressOne());
         mBillingAddressTwo.setText(mOrderSelected.getBillingAddress().getAddressTwo());
         mBillingAddressCP.setText(mOrderSelected.getBillingAddress().getPostcode());
         mBillingAddressState.setText(mOrderSelected.getBillingAddress().getState());
         mBillingAddressCity.setText(mOrderSelected.getBillingAddress().getCity());
-        mBillingAddressCountry.setText(mOrderSelected.getBillingAddress().getCountry());
+        mBillingAddressCountry.setText(mOrderSelected.getBillingAddress().getCountry());*/
 
         LinearLayout cardDetails = (LinearLayout) findViewById(R.id.shopping_card_details);
         while(cardDetails.getChildCount() > 2) {
@@ -478,7 +558,7 @@ public class OrderNew extends AppCompatActivity {
     private void createOrder() {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setEnabled(false);
+        fab.setEnabled(true);
 
         mProgress.setMessage(getString(R.string.create_order));
         mProgress.show();
@@ -532,23 +612,27 @@ public class OrderNew extends AppCompatActivity {
         }
 
         String json = mGson.toJson(mOrderSelected);
-        Log.i(LOG_TAG, json);
+        Log.i(LOG_TAG, "Json1 "+json);
 
         OrderResponse orderCreate = new OrderResponse();
         orderCreate.setOrder(mOrderSelected);
 
+
+       finalizeOrder(mOrderSelected);
+
         // TODO:Z
-        /*Woocommerce woocommerceApi = ((Dezynish) getApplication()).getWoocommerceApiHandler();
+      /*  WooCommerce woocommerceApi = ((Dezynish) getApplication()).getWoocommerceApiHandler();
         Call<OrderResponse> call = woocommerceApi.insertOrder(orderCreate);
         call.enqueue(new Callback<OrderResponse>() {
             @Override
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
                 int statusCode = response.code();
                 if (statusCode == 201) {
-                    Order order = response.body().getOrder();
 
-                    String json = mGson.toJson(order);
-                    Log.i(LOG_TAG, json);
+            Order order = response.body().getOrder();
+
+            String json = mGson.toJson(order);
+            Log.i(LOG_TAG, json);
 
                     ContentValues orderValues = new ContentValues();
                     orderValues.put(DezynishContract.OrdersEntry.COLUMN_ID, order.getId());
@@ -657,7 +741,6 @@ public class OrderNew extends AppCompatActivity {
                 }
             }
 
-            @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -686,7 +769,7 @@ public class OrderNew extends AppCompatActivity {
         orderUpdate.setOrder(orderUpdateValues);
 
         // TODO:Z
-        /*Woocommerce woocommerceApi = ((Dezynish) getApplication()).getWoocommerceApiHandler();
+       /* WooCommerce woocommerceApi = ((Dezynish) getApplication()).getWoocommerceApiHandler();
         Call<OrderResponse> call = woocommerceApi.updateOrder(order.getOrderNumber(), orderUpdate);
         call.enqueue(new Callback<OrderResponse>() {
 

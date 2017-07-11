@@ -360,7 +360,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
             }
         });*/
 
-        WooCommerce.getInstance().getProducts(mPage, 25, new ListCallbacks() {
+        WooCommerce.getInstance().getProducts(mPage, 50, new ListCallbacks() {
             @Override
             public void Callback(List<?> content, Throwable error) {
                 if (error != null) {

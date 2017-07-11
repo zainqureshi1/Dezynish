@@ -113,9 +113,9 @@ public class OAuthSigner {
 
 
             genericUrl.appendRawPath(endpoint);
-//        genericUrl.set("filter[category]", categories.getName());
-//        genericUrl.set("filter[limit]", 25);
-
+        /*genericUrl.set("filter[category]", categories.getName());
+        genericUrl.set("filter[limit]", 25);
+*/
             OAuthHmacSigner oAuthHmacSigner = new OAuthHmacSigner();
             oAuthHmacSigner.clientSharedSecret = wooCommerce.getWc_secret();
 

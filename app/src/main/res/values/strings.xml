@@ -118,14 +118,14 @@
     <string name="default_email" translatable="false"></string>
     <string name="default_phone" translatable="false"></string>
 
-    <string name="default_line_one" translatable="false">San Francisco #3477 Int 2</string>
-    <string name="default_line_two" translatable="false">Colonia Chapalita</string>
-    <string name="default_city" translatable="false">Guadalajara</string>
-    <string name="default_state" translatable="false">Jalisco</string>
-    <string name="default_postal_code" translatable="false">44500</string>
-    <string name="default_country" translatable="false">MX</string>
-    <string name="default_payment_code" translatable="false">cod</string>
-    <string name="default_payment" translatable="false">Pago en persona</string>
+    <string name="default_line_one" translatable="false"></string>
+    <string name="default_line_two" translatable="false"></string>
+    <string name="default_city" translatable="false"></string>
+    <string name="default_state" translatable="false"></string>
+    <string name="default_postal_code" translatable="false"></string>
+    <string name="default_country" translatable="false"></string>
+    <string name="default_payment_code" translatable="false"></string>
+    <string name="default_payment" translatable="false"></string>
 
     <string name="default_shipping_method_id" translatable="false">local_pickup</string>
     <string name="default_shipping_method_title" translatable="false">Pasar por el paquete</string>

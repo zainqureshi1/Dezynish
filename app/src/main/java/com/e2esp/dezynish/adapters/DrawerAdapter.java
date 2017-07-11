@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.e2esp.dezynish.R;
 import com.e2esp.dezynish.expandablerecyclerview.ChildViewHolder;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 
 public class DrawerAdapter extends ExpandableRecyclerAdapter<DrawerItem, DrawerSubItem, DrawerAdapter.DrawerItemVH, DrawerAdapter.DrawerSubItemVH> {
 
+    public static final String LOG_TAG = DrawerAdapter.class.getSimpleName();
     private final int VIEW_TYPE_HEADER = 1001;
     private final int HEADER_SECTIONS = 1;
 
@@ -58,7 +61,9 @@ public class DrawerAdapter extends ExpandableRecyclerAdapter<DrawerItem, DrawerS
     @Override
     public int getItemCount() {
         int itemCount = super.getItemCount() + HEADER_SECTIONS;
+
         return itemCount;
+
     }
 
     @Override
@@ -158,6 +163,7 @@ public class DrawerAdapter extends ExpandableRecyclerAdapter<DrawerItem, DrawerS
             textView = (TextView) itemView.findViewById(R.id.label);
             countView = (TextView) itemView.findViewById(R.id.count);
             imageView = (ImageView) itemView.findViewById(R.id.icon);
+
         }
 
         @Override
@@ -170,6 +176,7 @@ public class DrawerAdapter extends ExpandableRecyclerAdapter<DrawerItem, DrawerS
             textView.setText(drawerItem.getSection());
             if(drawerItem.getCount() > -1){
                 countView.setText(String.valueOf(drawerItem.getCount()));
+                Log.d(LOG_TAG,"Count view " + countView);
             }
             imageView.setImageResource(drawerItem.getIcon());
             if (isExpanded()) {
@@ -208,6 +215,7 @@ public class DrawerAdapter extends ExpandableRecyclerAdapter<DrawerItem, DrawerS
                     drawerCallbacks.onSubItemSelected(parentPosition + HEADER_SECTIONS, childPosition);
                 }
             });
+
         }
     }
 

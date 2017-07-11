@@ -3,6 +3,8 @@ package com.e2esp.dezynish.activities;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -121,7 +123,21 @@ public class OrderAddProduct extends AppCompatActivity {
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), getString(R.string.product_updated_wip), Toast.LENGTH_LONG).show();
+
+                ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+                NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                NetworkInfo mobile = connManager .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+                if (!wifi.isConnected() && !mobile.isConnected()){
+
+                    Toast.makeText(getApplicationContext(), " Please make sure, your network connection is ON", Toast.LENGTH_LONG).show();
+                }
+
+                if (wifi.isConnected() || mobile.isConnected()){
+
+                    Toast.makeText(getApplicationContext(), getString(R.string.product_updated_wip), Toast.LENGTH_LONG).show();
+
+                }
             }
         };
 
@@ -343,7 +359,7 @@ public class OrderAddProduct extends AppCompatActivity {
                         price.setText(priceString);
                         stock.setText(stockString);
                     } else {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_add_stock_quantity), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), getString(R.string.error_add_stock_quantity), Toast.LENGTH_SHORT).show();
                     }
                 }
             });

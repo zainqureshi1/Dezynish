@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerC
     @Override
     public void onNavigationDrawerSubItemSelected(int position, final String subItem) {
         FragmentManager fragmentManager = getSupportFragmentManager();
+        Log.d(TAG,"Position "+position);
         switch (position) {
             case 0:
                 fragmentManager.beginTransaction()
@@ -147,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerC
     private void processIntent(Intent intent) {
         super.onNewIntent(intent);
         String action = intent.getAction();
+        //Log.i(TAG,"Process Call");
         if (action != null && (action.equals(Intent.ACTION_SEARCH) || action.equals(SearchIntents.ACTION_SEARCH))) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             if(query != null && query.length()>0){

@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.e2esp.dezynish.models.orders.Count;
 import com.e2esp.dezynish.models.orders.Order;
+import com.e2esp.dezynish.models.orders.OrderResponse;
+import com.e2esp.dezynish.models.orders.Orders;
 import com.e2esp.dezynish.models.products.Product;
 import com.e2esp.dezynish.enums.RequestMethod;
 import com.e2esp.dezynish.models.shop.Shop;
@@ -22,12 +24,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Path;
 import retrofit.http.QueryMap;
 import retrofit.mime.TypedByteArray;
@@ -37,6 +42,7 @@ import retrofit.mime.TypedByteArray;
  */
 
 public class WooCommerce {
+
     private final String TAG = WooCommerce.class.getName();
 
     private static WooCommerce ourInstance = new WooCommerce();
@@ -94,6 +100,8 @@ public class WooCommerce {
 
         @GET(Endpoints.ORDERS_ENDPOINT)
         void getOrders(@QueryMap LinkedHashMap<String, String> options, Callback<Response> response);
+
+
     }
 
     public void getShop(final ObjectCallbacks fetched) {
@@ -229,7 +237,7 @@ public class WooCommerce {
         builder.append(wcBuilder.isHttps() ? "https://" : "http://");
         builder.append(wcBuilder.getBaseUrl() + "/");
         builder.append("wc-api/v3");
-        Log.i(TAG,builder.toString());
+        Log.i(TAG," Get Products Count " + builder.toString());
         RestAdapter adapter = new RestAdapter.Builder()
                 .setEndpoint(builder.toString())
                 .build();

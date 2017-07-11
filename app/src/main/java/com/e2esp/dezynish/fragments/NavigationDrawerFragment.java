@@ -317,7 +317,7 @@ public class NavigationDrawerFragment extends Fragment implements LoaderManager.
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.d(LOG_TAG, "onCreateLoader");
+        Log.d(LOG_TAG, "onCreateLoader ");
 
         CursorLoader cursorLoader;
         switch (id) {
